@@ -59,6 +59,7 @@
     import WordInformation from '$lib/components/wordInformation.svelte';
     import Checkbox from '$lib/components/checkbox.svelte';
     import { wordList as storeWordList } from '$lib/wordList';
+	import { notificationStore } from '$lib/notificationStore';
 
     $: words = $storeWordList;
     let parentRef: HTMLDivElement;
@@ -93,6 +94,13 @@
         if (word) {
             const normalizedWord = word.toLowerCase();
             const index = wordList.findIndex((w) => w.word === normalizedWord);
+            if (index < 0) {
+                notificationStore.add({
+                    message: `The word "${word}" was not found in the list`,
+                    type: 'danger',
+                });
+                return;
+            }
             currentSelectedWordIndex = index >= 0 ? index : 0;
         } else {
             currentSelectedWordIndex = 0;
