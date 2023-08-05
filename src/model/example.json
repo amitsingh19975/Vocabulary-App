@@ -1,10 +1,11 @@
 [
     {
         "word": "Abhor",
-        "form": "verb",
+        "forms": ["verb", "adj"],
         "defs": [
             {
                 "def": "to hate, detest",
+                "form": "verb",
                 "examples": [
                     "I <b>abhor</b> the way he treats his wife.",
                     "She <b>abhors</b> all forms of racism.",
@@ -29,10 +30,11 @@
     },
     {
         "word": "Abhorrent",
-        "form": "adj",
+        "forms": ["adj"],
         "defs": [
             {
                 "def": "disgusting, loathsome",
+                "form": "adj",
                 "examples": [
                     "The child's abhorrent behavior was not tolerated by the school.",
                     "The abhorrent smell of rotten eggs filled the room.",

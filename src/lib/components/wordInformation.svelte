@@ -2,7 +2,7 @@
     <div class="flex justify-between items-center">
         <div class="flex items-baseline gap-1">
             <h1 class="capitalize text-[2em] font-extrabold">{word.word}</h1>
-            <span class="opacity-70 lowercase" class:memory-test={memoryTest}>{word.form}</span>
+            <span class="opacity-70 lowercase" class:memory-test={memoryTest}>{word.forms.join(', ')}</span>
         </div>
     </div>
 
@@ -12,9 +12,16 @@
             <ol class="ml-5 mt-2 list-none word-list w-full flex gap-4 flex-col">
                 {#each (word.defs ?? []) as def, index}
                     <li class:memory-test={memoryTest} class="flex gap-1 max-w-[95%]">
-                        <span>{index + 1}.</span>
+                        <span>
+                            {index + 1}.
+                        </span>
                         <div class="flex flex-col gap-2 flex-grow">
-                            <p class="word-def-item">{@html parseMarkdown(def.def)}</p>
+                            <p class="word-def-item">
+                                {#if shouldShowDefForm(word, index)}
+                                    <span class="text-sm capitalize bg-sky-200 bg-opacity-20 px-2 py-[0.1em] rounded border border-sky-200 border-opacity-25 mr-1">{def.form}</span>
+                                {/if}
+                                {@html parseMarkdown(def.def)}
+                            </p>
                             {#if Array.isArray(def.examples) && def.examples.length > 0}
                                 <div class="p-2 rounded bg-white bg-opacity-10 border-white border border-opacity-20">
                                     <h3 class="text-md opacity-70 font-medium">Examples</h3>
@@ -116,6 +123,16 @@
 
     function makeURL(word: string) {
         return `#${word}`;
+    }
+
+    function shouldShowDefForm(word: WordSchema, index: number) {
+        const defs = word.defs;
+        if (!Array.isArray(defs)) return false;
+        if (word.forms.length <= 1) return false;
+        const def = defs[index];
+        if (!def) return false;
+        if (!def.form) return false;
+        return word.forms.includes(def.form);
     }
 
 </script>

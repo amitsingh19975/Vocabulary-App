@@ -1,4 +1,4 @@
-<div class="w-full h-full px-4 py-8 flex isolate" bind:this={parentRef}>
+<div class="w-full h-full px-4 py-8 justify-center flex isolate" bind:this={parentRef}>
     {#if wordList.length > 0}
         <section aria-label="Word list section" class="w-[400px] grid grid-rows-[45px_1fr] gap-4 z-[1] overflow-hidden">
             <Input placeholder="Search" wrapperClass="mr-2" searchItems={wordList.map((w) => w.word)} on:search={handleSearch} label="Search">
@@ -28,7 +28,7 @@
                 </VirtualList>
             </div>
         </section>
-        <section aria-label="Word information section" class="flex-grow min-w-[1000px] grid grid-rows-[45px_1fr] gap-4 z-0">
+        <section aria-label="Word information section" class="flex-grow min-w-[40vw] max-w-[60vw] grid grid-rows-[45px_1fr] gap-4 z-0">
             <div class="flex items-center justify-end">
                 <Checkbox bind:checked={memoryTest}>
                     Memory Test

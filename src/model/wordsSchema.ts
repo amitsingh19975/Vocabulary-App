@@ -1,12 +1,13 @@
 export type WordSchema = {
     word: string;
-    form: 'verb' | 'adj' | 'noun' | 'adv';
+    forms: ('verb' | 'adj' | 'noun' | 'adv')[];
     defs?: Array<{
         def: string;
-        examples: Array<string>;
+        form?: WordSchema['forms'][number];
+        examples?: Array<string>;
     }>;
     otherForms?: Array<{
-        form: WordSchema['form'];
+        form: WordSchema['forms'][number];
         word: string;
     }>;
     links?: Array<{
