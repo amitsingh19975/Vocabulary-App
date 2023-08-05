@@ -3,6 +3,7 @@
     import { base } from '$app/paths';
     import { page } from '$app/stores'
 	import { afterNavigate } from '$app/navigation';
+    import NotificationContainer from '$lib/components/notificationContainer.svelte';
 
     const navItems = [
         { name: 'Home', href: '/' },
@@ -73,4 +74,5 @@
     <main>
         <slot></slot>
     </main>
+    <NotificationContainer />
 </div>
