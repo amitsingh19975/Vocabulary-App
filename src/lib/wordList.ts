@@ -1,7 +1,9 @@
 import { readable, writable } from "svelte/store";
 import type { WordHistory, WordSchema } from '../model/wordsSchema';
-import dummy from '../model/example.json';
 import { browser } from '$app/environment';
+import defaultWordList from '../data/words';
+
+const DEFAULT_WORD_LIST = fixWords(defaultWordList);
 
 function getItemLocalStorageFromLocalStorage(key: string) {
     if (!browser) return;
@@ -80,19 +82,24 @@ function createWordHistory() {
     }
 }
 
-function createWordList(words: WordSchema[] = dummy as any) {
-    function setWordsHelper(words: WordSchema[]) {
-        for (const word of words) {
-            
+function fixWords(words: WordSchema[][]) {
+    const temp: WordSchema[] = [];
+    for (const list of words) {
+        for (const word of list) {
             word.word = word.word.toLowerCase();
             word?.otherForms?.forEach((item) => {
                 item.word = item.word.toLowerCase();
             });
+            temp.push(word);
         }
-        return words;
     }
-    
-    return readable<WordSchema[]>(setWordsHelper(words));
+    return temp;
+}
+
+function createWordList(words: WordSchema[] = []) {
+    const tempWords = [...DEFAULT_WORD_LIST, ...fixWords([words])]
+        .sort((a, b) => a.word.localeCompare(b.word));
+    return readable<WordSchema[]>(tempWords);
 }
 
 export const wordList = createWordList();
