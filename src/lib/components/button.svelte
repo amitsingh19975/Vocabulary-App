@@ -9,10 +9,12 @@
     <slot />
 </button>
 
-<script lang="ts">
-    type ColorType = 'primary' | 'danger' | 'warning' | 'success' | 'light' | 'dark';
-    type FillType = 'solid' | 'ghost' | 'outline';
+<script context="module" lang="ts" >
+    export type ColorType = 'primary' | 'danger' | 'warning' | 'success' | 'light' | 'dark';
+    export type FillType = 'solid' | 'ghost' | 'outline';
+</script>
 
+<script lang="ts">
     export let expand = false;
     export let color: ColorType = 'primary';
     export let fill: FillType = 'solid';
