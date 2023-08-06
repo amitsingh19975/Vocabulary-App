@@ -26,10 +26,11 @@
 
 <style lang="postcss" scoped>
     .card-wrapper {
-        --card-bg-color-hsl: 206 12% 21%;
+        --card-bg-color-hsl: 206 12% 19%;
         --card-border-color-hsl: 206 12% 30%;
-        background-color: hsl(var(--card-bg-color-hsl) / 0.7);
+        background-color: hsl(var(--card-bg-color-hsl));
         border: 1px solid hsl(var(--card-border-color-hsl));
+        color: hsl(206, 12%, 100%);
         @apply rounded overflow-hidden;
     }
 </style>
