@@ -4,6 +4,16 @@
             <h1 class="capitalize text-[2em] font-extrabold">{word.word}</h1>
             <span class="opacity-70 lowercase" class:memory-test={memoryTest}>{word.forms.join(', ')}</span>
         </div>
+        {#if isAIEnabled}
+            <div>
+                <Button fill="ghost" on:click={onOpenAIModalClick}>
+                    <div class="flex items-center gap-1">
+                        <MagicWand size={18} />
+                        <span>AI based Test</span>
+                    </div>
+                </Button>
+            </div>
+        {/if}
     </div>
 
     {#if Array.isArray(word.defs) && word.defs.length > 0}
@@ -79,13 +89,16 @@
         </ul>
     </div>
 </div>
-
+<WordAiTestModal bind:open={isAIModalOpen} currentWord={word} />
 
 <script lang="ts">
 	import type { WordSchema } from '../../model/wordsSchema';
     import { marked  } from 'marked';
-    import { ExternalLink } from 'radix-icons-svelte';
+    import { ExternalLink, MagicWand } from 'radix-icons-svelte';
     import { wordList } from '$lib/wordList';
+    import { settings } from '$lib/settings';
+    import Button from './button.svelte';
+    import WordAiTestModal from './wordAiTestModal.svelte';
 
     export let word: WordSchema;
     export let memoryTest: boolean = false;
@@ -134,6 +147,21 @@
         if (!def.form) return false;
         return word.forms.includes(def.form);
     }
+
+    // ------------------------------- AI Model -------------------------------
+
+    let isAIEnabled = false;
+    let isAIModalOpen = false;
+
+    $: {
+        isAIEnabled = Boolean($settings.openAIKey);
+    }
+
+    function onOpenAIModalClick() {
+        isAIModalOpen = true;
+    }
+
+    // ------------------------------------------------------------------------
 
 </script>
 
