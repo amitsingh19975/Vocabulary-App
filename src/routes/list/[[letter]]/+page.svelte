@@ -1,10 +1,12 @@
 <div class="w-full h-full px-4 py-8 justify-center flex isolate" bind:this={parentRef}>
     {#if wordList.length > 0}
         <section aria-label="Word list section" class="w-[400px] grid grid-rows-[45px_1fr] gap-4 z-[1] overflow-hidden">
-            <Input placeholder="Search" wrapperClass="mr-2" searchItems={wordList.map((w) => w.word)} on:search={handleSearch} label="Search">
-                <MagnifyingGlass slot="start" class="text-white opacity-50" size={18} />
-            </Input>
-            <div role="menu" tabindex="0" on:focusin={onContainerFocusIn}>
+            <div class="p-2">
+                <Input placeholder="Search" wrapperClass="mr-2" searchItems={wordList.map((w) => w.word)} on:search={handleSearch} label="Search">
+                    <MagnifyingGlass slot="start" class="text-white opacity-50" size={18} />
+                </Input>
+            </div>
+            <div role="menu" tabindex="-1" on:keyup={onContainerKeyup} bind:this={listRef} class="!ring-0">
                 <VirtualList itemCount={wordList.length} itemSize={50} height={containerHeight} scrollToIndex={currentSelectedWordIndex} stickyIndices={[currentSelectedWordIndex]}>
                     <div
                         slot="item"
@@ -16,11 +18,12 @@
                         role="listitem"
                     >
                         <button
-                            class="word-list-item"
+                            class="word-list-item d-focus"
                             class:active={currentSelectedWordIndex === index}
                             tabindex={currentSelectedWordIndex === index ? 0 : -1}
                             on:click={() => currentSelectedWordIndex = index}
-                            on:keydown={(e) => onKeyDownEvent(e, index)}
+                            data-index={index}
+                            on:keyup|stopPropagation={onContainerKeyup}
                         >
                             <span class="w-full whitespace-normal break-words">{wordList[index].word}</span>
                         </button>
@@ -52,7 +55,7 @@
 <script lang="ts">
 	import { page } from '$app/stores';
 	import Input from '$lib/components/input.svelte';
-	import { onMount } from 'svelte';
+	import { onMount, tick } from 'svelte';
 	import type { WordSchema } from '../../../model/wordsSchema';
     import { MagnifyingGlass, ExclamationTriangle } from 'radix-icons-svelte';
     import VirtualList from 'svelte-tiny-virtual-list';
@@ -118,37 +121,29 @@
         }
     }
 
-    function onKeyDownEvent(e: KeyboardEvent, index?: number) {
-        if (index !== currentSelectedWordIndex) return;
-        const el = e.target as HTMLButtonElement;
+    let listRef: HTMLDivElement;
+
+    function onContainerKeyup(e: KeyboardEvent) {
+        let tempIndex = currentSelectedWordIndex;
         switch(e.key) {
             case 'ArrowDown': {
-                currentSelectedWordIndex = Math.min(currentSelectedWordIndex + 1, words.length - 1);
                 e.preventDefault();
-                const siblingButton = el.parentElement?.nextElementSibling?.firstChild as HTMLButtonElement;
-                requestAnimationFrame(() => {
-                    if (!(siblingButton instanceof HTMLButtonElement)) return;
-                    siblingButton.focus();
-                });
+                tempIndex = Math.min(currentSelectedWordIndex + 1, words.length - 1);
                 break;
             }
             case 'ArrowUp': {
-                currentSelectedWordIndex = Math.max(currentSelectedWordIndex - 1, 0);
                 e.preventDefault();
-                const siblingButton = el.parentElement?.previousElementSibling?.firstChild as HTMLButtonElement;
-                requestAnimationFrame(() => {
-                    if (!(siblingButton instanceof HTMLButtonElement)) return;
-                    siblingButton.focus();
-                });
+                tempIndex = Math.max(currentSelectedWordIndex - 1, 0);
                 break;
             }
+            default: return;
         }
-    }
-
-    function onContainerFocusIn(e: FocusEvent) {
-        const el = e.target as HTMLDivElement;
-        const button = el.querySelector('button[tabindex="0"]') as HTMLButtonElement;
-        if (button) button.focus();
+        const button = listRef.querySelector(`button[data-index="${tempIndex}"]`) as HTMLButtonElement;
+        if (!button) return;
+        currentSelectedWordIndex = tempIndex;
+        tick().then(() => {
+            button.focus();
+        });
     }
 
     function handleSearch(e: CustomEvent<string>) {
