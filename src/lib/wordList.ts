@@ -84,12 +84,19 @@ function createWordHistory() {
 
 function fixWords(words: WordSchema[][]) {
     const temp: WordSchema[] = [];
+    const uniqueWords = new Set<string>();
     for (const list of words) {
         for (const word of list) {
             word.word = word.word.toLowerCase();
+            
+            if (uniqueWords.has(word.word)) continue;
+            uniqueWords.add(word.word);
+            
+            word.forms = [...new Set(word.forms.map((item) => item.toLowerCase()))] as WordSchema['forms'];
             word?.otherForms?.forEach((item) => {
                 item.word = item.word.toLowerCase();
             });
+            
             temp.push(word);
         }
     }
