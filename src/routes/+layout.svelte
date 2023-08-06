@@ -26,7 +26,6 @@
         <slot></slot>
     </main>
     <NotificationContainer />
-    <!-- <WordAiTestModal currentWord="abhor" open={true} /> -->
     <SettingsModal bind:open={isSettingsModalOpen} />
 </div>
 
@@ -36,7 +35,6 @@
     import { page } from '$app/stores'
 	import { afterNavigate } from '$app/navigation';
     import NotificationContainer from '$lib/components/notificationContainer.svelte';
-    import WordAiTestModal from '$lib/components/wordAiTestModal.svelte';
     import SettingsModal from '$lib/components/settingsModal.svelte';
     import { Gear } from 'radix-icons-svelte';
 
