@@ -23,6 +23,7 @@
                 min={min}
                 max={max}
                 step={step}
+                {...$$restProps}
             />
             {#if isSearchEnabled && (suggestedWordIndex >= 0 && suggestions.length > suggestedWordIndex)}
                 <span class="absolute left-0 opacity-40">{suggestions[suggestedWordIndex]}</span>
