@@ -59,6 +59,15 @@
     {/if}
 </div>
 <svelte:window on:hashchange={onNavigationChange} />
+<svelte:head>
+    {#if $page.params.letter}
+        <title>
+            {`Words starting with ${$page.params.letter.toUpperCase()}`}
+        </title>
+    {:else}
+        <title>Words list</title>
+    {/if}
+</svelte:head>
 
 <script lang="ts">
 	import { page } from '$app/stores';

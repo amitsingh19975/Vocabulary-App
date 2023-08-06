@@ -44,6 +44,11 @@
     </Card>
 </div>
 
+<svelte:head>
+    <title>Quiz Mode</title>
+    <meta name="description" content="Quiz Mode" />
+</svelte:head>
+
 <script lang="ts">
     import Card from '$lib/components/card.svelte';
     import Input from '$lib/components/input.svelte';

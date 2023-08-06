@@ -56,6 +56,12 @@
     </div>
 </div>
 
+<svelte:head>
+    <title>Word History</title>
+    <meta name="description" content="Word history and stats" />
+    <meta name="keywords" content="word history, word stats, word quiz" />
+</svelte:head>
+
 <script lang="ts">
     import Card from '$lib/components/card.svelte';
     import Checkbox from '$lib/components/checkbox.svelte';

@@ -29,6 +29,10 @@
     <SettingsModal bind:open={isSettingsModalOpen} />
 </div>
 
+<svelte:head>
+    <meta name="author" content="Amit Singh" />
+</svelte:head>
+
 <script lang="ts">
     import '../app.css';
     import { base } from '$app/paths';

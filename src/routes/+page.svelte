@@ -9,6 +9,13 @@
     </div>
 </div>
 
+<svelte:head>
+    <title>Vocabulary</title>
+    <meta name="description" content="Vocabulary App for learning words with AI" />
+    <meta name="keywords" content="Vocabulary, AI, Learning, Words" />
+    <meta name="author" content="Amit Singh" />
+</svelte:head>
+
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { base } from '$app/paths';
