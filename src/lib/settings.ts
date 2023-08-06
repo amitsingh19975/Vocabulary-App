@@ -13,12 +13,14 @@ function createSettings() {
 
     function setSettings(settings: Settings, options?: { keepAIKey?: boolean }) {
         const { keepAIKey = false } = options || {};
+        settings.openAIKey = settings.openAIKey?.trim();
         set(settings);
         setItemToLocalStorage('settings', {...settings, openAIKey: keepAIKey ? settings.openAIKey : undefined});
     }
 
     function updateSettings(settings: Settings, options?: { keepAIKey?: boolean }) {
         const { keepAIKey = false } = options || {};
+        settings.openAIKey = settings.openAIKey?.trim();
         update((currentSettings) => {
             const newSettings = {...currentSettings, ...settings};
             setItemToLocalStorage('settings', { ...newSettings, openAIKey: keepAIKey ? newSettings.openAIKey : undefined });
