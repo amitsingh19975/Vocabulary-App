@@ -28,3 +28,9 @@ export function setItemToLocalStorage(key: string, data: unknown) {
     const value = JSON.stringify(data);
     localStorage.setItem(key, value);
 }
+
+export function normalizeError(error: unknown): Error {
+    if (error instanceof Error) return error;
+    if (typeof error === 'string') return new Error(error);
+    return new Error(JSON.stringify(error));
+}
