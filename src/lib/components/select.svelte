@@ -23,10 +23,22 @@
         style="grid-template-columns: 1fr 1.75rem; {style}"
     >
         {#if selectedLabel}
-            <div class="w-full px-4 py-1 text-white text-ellipsis overflow-ellipsis whitespace-nowrap overflow-hidden {placeholderClass}" style={placeholderStyle}>
-                <slot name="prepend:label" />
-                {selectedLabel}
-                <slot name="append:label" />
+            <div class="grid w-full" style="grid-template-columns: 1fr auto">
+                <div class="w-full px-4 py-1 text-white text-ellipsis overflow-ellipsis whitespace-nowrap overflow-hidden {placeholderClass}" style={placeholderStyle}>
+                    <slot name="prepend:label" />
+                    {selectedLabel}
+                    <slot name="append:label" />
+                </div>
+                {#if clearable}
+                    <div class="flex items-center justify-center">
+                        <button
+                            class="p-1 mr-1 aspect-square rounded-full hover:bg-black hover:bg-opacity-20 active:bg-black active:bg-opacity-30"
+                            on:click|stopPropagation={onClearClick}
+                        >
+                            <Cross1 size={18} />
+                        </button>
+                    </div>
+                {/if}
             </div>
         {:else}
             <div class="w-full px-4 py-1 text-white text-opacity-50 text-ellipsis overflow-ellipsis whitespace-nowrap overflow-hidden {placeholderClass}"  style={placeholderStyle}>
@@ -52,7 +64,7 @@
             bind:this={optionWrapperRef}
         >
             {#each normalizedOptions as option, index (option.key)}
-                <li class="{optionClass}" role="option" aria-selected={value ? (option.key == value ? 'true' : 'false') : index === 0} data-key={option.key}>
+                <li class="{optionClass}" role="option" aria-selected={(option.key == value ? 'true' : 'false')} data-key={option.key}>
                     <button
                         class="w-full h-full border-0 bg-transparent text-start"
                         class:over-item={currentOverItemIndex === index}
@@ -66,7 +78,7 @@
 </div>
 
 <script lang="ts">
-    import { ChevronDown } from 'radix-icons-svelte';
+    import { ChevronDown, Cross1 } from 'radix-icons-svelte';
     import { clickoutside } from '@svelteuidev/composables';
 	import { tick } from 'svelte';
 
@@ -90,10 +102,11 @@
     export let hideLabel: boolean = false;
     export let label: string = '';
     export let disabled: boolean = false;
+    export let clearable: boolean = false;
 
     export { className as class }
 
-    let currentOverItemIndex = 0;
+    let currentOverItemIndex = -1;
 
     let optionWrapperRef: HTMLUListElement;
 
@@ -104,7 +117,7 @@
     let normalizedOptions: Array<OptionObject> = [];
 
     function initCurrentItemIndex() {
-        currentOverItemIndex = Math.max(normalizedOptions.findIndex((option) => option.key === value), 0);
+        currentOverItemIndex = normalizedOptions.findIndex((option) => option.key === value);
     }
     
     $: {
@@ -164,6 +177,12 @@
             }
         }
     }
+
+    function onClearClick() {
+        value = '';
+        expanded = false;
+        initCurrentItemIndex();
+    }
 </script>
 
 <style lang="postcss" scoped>
@@ -175,6 +194,7 @@
 
 ul {
     @apply hidden absolute top-full mt-1 z-[100] bg-[var(--drop-down-bg)] w-full border border-white border-opacity-5 rounded;
+    @apply shadow-sm shadow-slate-600;
 }
 
 .container-wrapper {
