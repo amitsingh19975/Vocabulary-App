@@ -74,7 +74,7 @@
     import { page } from '$app/stores';
     import seedRandom from 'seedrandom';
     import { wordHistory, wordList } from '$lib/wordList';
-	import type { WordHistory } from '../../../model/wordsSchema';
+	import type { WordHistory, WordSchema } from '../../../model/wordsSchema';
     import Card from '$lib/components/card.svelte';
     import { CheckCircled } from 'radix-icons-svelte';
     import Button from '$lib/components/button.svelte';
@@ -89,6 +89,7 @@
         amountOfWords: number;
         randomSeed?: string;
         percentageOfWordsFromHistory: number;
+        groupBy?: { key: string, childKey: string },
     }
 
     let config: Config = {
@@ -112,6 +113,15 @@
             const amtWordsString = $page.url.searchParams.get('amt_words') ?? '20';
             const randomSeed = $page.url.searchParams.get('seed') ?? undefined;
             const percentageOfWordsFromHistoryString = $page.url.searchParams.get('perc_history') ?? '10';
+            const groupBy = $page.url.searchParams.get('group_by') ?? undefined;
+
+            let groupByObj: Config['groupBy'] = undefined;
+
+            try {
+                groupByObj = groupBy ? JSON.parse(groupBy) : undefined;
+            } catch(e) {
+                console.error(e);
+            }
     
             const amtWords = parseInt(amtWordsString);
             const percentageOfWordsFromHistory = parseInt(percentageOfWordsFromHistoryString);
@@ -119,6 +129,7 @@
                 amountOfWords: Number.isNaN(amtWords) ? 20 : amtWords,
                 randomSeed: randomSeed ? randomSeed : undefined,
                 percentageOfWordsFromHistory: Number.isNaN(percentageOfWordsFromHistory) ? 10 : percentageOfWordsFromHistory,
+                groupBy: groupByObj,
             }
         }
     }
@@ -134,6 +145,16 @@
         return w.stats.attempts - w.stats.correct;
     }
 
+    function doesSatisfyGroupBy(word: WordSchema | undefined) {
+        if (!config.groupBy || word == null) return true;
+        const childKey = config.groupBy.childKey;
+        if (!childKey) return true;
+        switch(config.groupBy.key) {
+            case 'link': return Boolean(word.links?.some((el) => el.link === childKey));
+            default: return true;
+        }
+    }
+
     function initWords() {
         quizWords = [];
 
@@ -146,10 +167,13 @@
 
         for (let i = 0; i < historyLen && i < history.length; i++) {
             const word = history[i];
-            quizWords.push({
-                word: word.word,
-                origin: 'history',
-            });
+            const wordSchema = $wordList.find(w => w.word === word.word);
+            if (doesSatisfyGroupBy(wordSchema)) {
+                quizWords.push({
+                    word: word.word,
+                    origin: 'history',
+                });
+            }
             wordSet.add(word.word);
         }
 
@@ -157,10 +181,12 @@
         for (let i = 0; i < remainingWords && $wordList.length; i++) {
             const word = $wordList[Math.floor(randomGenerator() * $wordList.length)];
             if (!wordSet.has(word.word)) {
-                quizWords.push({
-                    word: word.word,
-                    origin: 'new',
-                });
+                if (doesSatisfyGroupBy(word)) {
+                    quizWords.push({
+                        word: word.word,
+                        origin: 'new',
+                    });
+                }
                 wordSet.add(word.word);
             }
         }

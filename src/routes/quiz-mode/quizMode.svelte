@@ -35,6 +35,16 @@
                 bind:value={historyPercentage}
                 bind:error={historyPercentageError}
             />
+            <Select label="Group By" placeholder="Group word by" bind:value={currentGroupBySelectionKey} options={groupByItems} clearable />
+            {#if currentGroupBySelectionKey === 'linkTitle' || currentGroupBySelectionKey === 'linkURL'}
+                <Select
+                    label="Group By {getTitle(currentGroupBySelectionKey)}"
+                    placeholder={getPlaceholder(currentGroupBySelectionKey)}
+                    bind:value={currentGroupBySelectionChildKey}
+                    options={linkItems}
+                    clearable
+                />
+            {/if}
         </div>
         <div slot="footer">
             <Button expand fill="solid" on:click={onQuizStartClick}>
@@ -55,6 +65,8 @@
     import Button from '$lib/components/button.svelte';
 	import { goto } from '$app/navigation';
 	import { base } from '$app/paths';
+    import Select from '$lib/components/select.svelte';
+	import { wordList } from '$lib/wordList';
 
     let amountOfWords = '20';
     let randomSeed: string | undefined = undefined;
@@ -69,8 +81,99 @@
             amt_words: amountOfWords,
             seed: randomSeed ?? '',
             history_percentage: historyPercentage,
+            group_by: JSON.stringify({
+                key: normalizeGroupByItem(currentGroupBySelectionKey),
+                childKey: currentGroupBySelectionChildKey,
+            })
         });
         goto(`${base}/quiz-mode/quiz?${query.toString()}`);
     }
+
+    // --------------------------- Group By ---------------------------
+    type OptionType = {
+        key: string;
+        label: string;
+    }
+
+    const groupByItems: OptionType[] = [
+        {
+            key: 'linkTitle',
+            label: 'Link Title',
+        },
+        {
+            key: 'linkURL',
+            label: 'Link',
+        }
+    ];
+
+    let currentGroupBySelectionChildKey = '';
+    let currentGroupBySelectionKey = '';
+
+    let linkItems: Array<OptionType> = [];
+
+    function initLinkItems(cb: (url: string, title: string) => OptionType) {
+        linkItems = [];
+        const linkItemsMap = new Map<string, string>();
+        $wordList.forEach((el) => {
+            const { links } = el;
+            if (!Array.isArray(links)) return;
+            links.forEach((link) => {
+                if (linkItemsMap.has(link.link)) return;
+                linkItemsMap.set(link.link, link.title);
+            });
+        });
+
+        linkItemsMap.forEach((label, key) => {
+            linkItems.push(cb(key, label));
+        });
+        linkItems.sort((a, b) => a.label.localeCompare(b.label));
+        linkItems = linkItems;
+    }
+
+    $: {
+        switch(currentGroupBySelectionKey) {
+            case 'linkTitle':
+                initLinkItems((url, title) => ({ key: url, label: title }));
+                break;
+            case 'linkURL':
+                initLinkItems((url) => ({ key: url, label: url }));
+                break;
+            case 'clear': currentGroupBySelectionKey = ''; break;
+            default:
+                break;
+        }
+    }
+
+    function resetGroupByConfig() {
+        currentGroupBySelectionChildKey = '';
+    }
+
+    $: {
+        currentGroupBySelectionKey;
+        resetGroupByConfig();
+    }
+
+    function getTitle(key: string) {
+        const item = groupByItems.find((el) => el.key === key);
+        return item?.label ?? '';
+    }
+
+    function getPlaceholder(key: string) {
+        switch(key) {
+            case 'linkTitle': return 'Select a link title';
+            case 'linkURL': return 'Select an URL';
+            default: return '';
+        }
+    
+    }
+
+    function normalizeGroupByItem(key: string) {
+        switch(key) {
+            case 'linkTitle': case 'linkURL': return 'link'
+            default: return '';
+        }
+    }
+
+    // -----------------------------------------------------------------
 
 </script>
