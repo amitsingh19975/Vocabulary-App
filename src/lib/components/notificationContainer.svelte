@@ -10,7 +10,7 @@
                 bind:message={notification.message}
                 bind:type={notification.type}
                 bind:duration={notification.duration}
-                on:close={() => notificationStore.remove(notification.id)}
+                on:close={() => onNotificationClose(notification.id)}
             />
         </div>
     {/each}
@@ -35,5 +35,9 @@
             prefersReducedMotion = e.matches;
         });
     });
+
+    function onNotificationClose(id: string) {
+        notificationStore.remove(id);
+    }
 
 </script>

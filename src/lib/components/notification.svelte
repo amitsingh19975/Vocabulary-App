@@ -8,7 +8,7 @@
         <span class="absolute top-0 left-0 border-2 timeline" style:border-color="var(--timeline-color)" style:--timeline-duration="{duration}ms"></span>
         <p class="p-3">{message}</p>
         <div class="flex justify-end pb-2 px-2">
-            <Button fill="ghost" color={getButtonType(type)} on:click>
+            <Button fill="ghost" color={getButtonType(type)} on:click={() => dispatcher('close')}>
                 Close
             </Button>
         </div>
@@ -24,9 +24,15 @@
         CheckCircled,
     } from 'radix-icons-svelte';
     import Button, { type ColorType } from './button.svelte';
+    import { createEventDispatcher } from 'svelte';
+
     export let message: string;
     export let type: Notification['type'] = 'default';
     export let duration: number = 5000;
+
+    const dispatcher = createEventDispatcher<{
+        close: void;
+    }>();
 
     function getNotificationIcon(type: unknown) {
         switch (type) {
