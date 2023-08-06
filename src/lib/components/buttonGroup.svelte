@@ -1,12 +1,13 @@
+
 <div
-    class={className}
+    class="{className} {hide? 'hidden': ''}"
     {style}
     role="group"
     style:--active-color="hsl(206 12% 27%)"
     style:--click-color="hsl(206 12% 25%)"
     style:--bg-color="hsl(206 12% 27% / 0.3)"
 >
-    <!-- svelte-ignore invalid-html-attribute -->
+    
     {#each {length: itemsCount} as _i, index (getKey(index)) }
         <slot name="item" buttonStyle={getStyle(index)} buttonClass={getClass(index)} activeStyle={getActiveStyle(activeIndex, index)} {index}></slot>
     {/each}
@@ -18,6 +19,7 @@
     export let style = ''
     export { className as class };
     export let getKey: (index: number) => any = (index) => index;
+    export let hide: boolean = false;
 
     function getStyle(index: number) {
         let borderRadius = '';

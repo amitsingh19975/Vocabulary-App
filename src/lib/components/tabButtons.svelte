@@ -1,4 +1,11 @@
-<ButtonGroup itemsCount={items.length} class={wrapperClass} style={wrapperStyle} bind:activeIndex={activeIndex} getKey={(index) => normalizedItems[index].key}>
+<ButtonGroup
+    itemsCount={items.length}
+    class={wrapperClass}
+    style={wrapperStyle}
+    bind:activeIndex={activeIndex}
+    getKey={(index) => normalizedItems[index].key}
+    hide={hideButtonGroup}
+>
     <button
         id={normalizedItems[index].id}
         slot="item"
@@ -18,6 +25,7 @@
     </button>
 </ButtonGroup>
 <svelte:window on:hashchange={onHashChange} />
+
 <script lang="ts">
     import ButtonGroup from '$lib/components/buttonGroup.svelte';
 	import { onMount } from 'svelte';
@@ -31,6 +39,8 @@
     
     export let activeIndex = 0;
     export let activeKey: string | undefined = undefined;
+    export let useHash = true;
+    export let hideButtonGroup = false;
 
     let initialActiveIndex = -1;
 
@@ -47,7 +57,11 @@
     }
 
     function onClickTab(index: number) {
-        window.location.hash = normalizedItems[index].key;
+        if (useHash) {
+            window.location.hash = normalizedItems[index].key;
+        } else {
+            activeIndex = index;
+        }
     }
 
     function onHashChangeHelper(hash: string | undefined) {
@@ -60,6 +74,7 @@
         activeIndex = index;
     }
     function onHashChange() {
+        if (!useHash) return;
         const hash = window.location.hash.substring(1);
         onHashChangeHelper(hash);
     }
