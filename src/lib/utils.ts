@@ -1,3 +1,5 @@
+import { browser } from '$app/environment';
+
 export function wait(ms: number): Promise<void> {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
@@ -12,4 +14,17 @@ export function formatDateTime(date: Date | number): string {
         hour: 'numeric',
         minute: 'numeric'
     });
+}
+
+export function getItemLocalStorageFromLocalStorage(key: string) {
+    if (!browser) return;
+    const value = localStorage.getItem(key);
+    if (value) return JSON.parse(value);
+    return null;
+}
+
+export function setItemToLocalStorage(key: string, data: unknown) {
+    if (!browser || data == null) return;
+    const value = JSON.stringify(data);
+    localStorage.setItem(key, value);
 }

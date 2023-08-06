@@ -1,22 +1,10 @@
 import { readable, writable } from "svelte/store";
 import type { WordHistory, WordSchema } from '../model/wordsSchema';
-import { browser } from '$app/environment';
 import defaultWordList from '../data/words';
+import { getItemLocalStorageFromLocalStorage, setItemToLocalStorage } from './utils';
 
 const DEFAULT_WORD_LIST = fixWords(defaultWordList);
 
-function getItemLocalStorageFromLocalStorage(key: string) {
-    if (!browser) return;
-    const value = localStorage.getItem(key);
-    if (value) return JSON.parse(value);
-    return null;
-}
-
-function setItemToLocalStorage(key: string, data: unknown) {
-    if (!browser || data == null) return;
-    const value = JSON.stringify(data);
-    localStorage.setItem(key, value);
-}
 
 function createWordHistory() {
     const { subscribe, update, set } = writable<WordHistory[]>([], (set) => {
