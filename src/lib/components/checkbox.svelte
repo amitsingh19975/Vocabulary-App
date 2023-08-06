@@ -1,6 +1,6 @@
 <label class="checkbox-wrapper focus-if-within {classWrapper}" class:flex-row-reverse={reverse} class:opacity-50={disabled}>
     <slot />
-    <input type="checkbox" class="sr-only" bind:checked on:change {disabled} />
+    <input type="checkbox" class="sr-only" bind:checked on:change {disabled} {...$$restProps} />
     <div class="w-4 h-4 aspect-square rounded bg-white custom-checkbox">
         {#if checked}
             <Check class="w-full h-full" />
