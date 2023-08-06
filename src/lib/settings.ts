@@ -8,7 +8,6 @@ type Settings = {
 function createSettings() {
     const { subscribe, set, update } = writable<Settings>({});
     const localSettings = getItemLocalStorageFromLocalStorage('settings');
-    console.log('localSettings', localSettings);
     if (localSettings) set(localSettings);
 
     function setSettings(settings: Settings, options?: { keepAIKey?: boolean }) {
