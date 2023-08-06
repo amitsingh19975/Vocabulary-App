@@ -32,7 +32,15 @@
             </div>
         </section>
         <section aria-label="Word information section" class="flex-grow min-w-[40vw] max-w-[60vw] grid grid-rows-[45px_1fr] gap-4 z-0">
-            <div class="flex items-center justify-end">
+            <div class="flex items-center justify-between mt-3 ml-2">
+                <div class="flex items-center h-full gap-8" aria-hidden="true">
+                    {#each wordSymbol as { title, colorVar } (title)}
+                        <div class="flex items-center gap-1">
+                            <div class=" aspect-square h-2 w-2 rounded-full" style="background-color: var({colorVar});"></div>
+                            <spam class="opacity-80" style="color: var({colorVar});">{title}</spam>
+                        </div>
+                    {/each}
+                </div>
                 <Checkbox bind:checked={memoryTest}>
                     Memory Test
                 </Checkbox>
@@ -153,6 +161,17 @@
         if (index < 0) return;
         currentSelectedWordIndex = index;
     }
+
+    // ------------------------ WORD SYMBOLS ------------------------
+
+    const wordSymbol = [
+        {
+            title: 'Collocations',
+            colorVar: '--word-type-collocation',
+        }
+    ];
+
+    // --------------------------------------------------------------
 
 </script>
 

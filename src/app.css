@@ -10,6 +10,7 @@
         --bg: hsl(var(--bg-hsl));
         --bg-primary-hsl: 205 93% 74%;
         --bg-primary: hsl(var(--bg-primary-hsl));
+        --word-type-collocation: theme('colors.emerald.200');
         @apply h-full bg-[var(--bg)] text-[var(--bg-contrast)] font-sans overflow-hidden;
         @apply font-sans;
     }
@@ -30,6 +31,10 @@
 
     .d-html-word a:not(.custom-a-tag) {
         @apply text-blue-400 underline hover:text-blue-500 active:text-blue-300 italic;
+    }
+
+    .d-html-word *[data-word-type="collocation"] {
+        color: var(--word-type-collocation);
     }
 
     .sr-only:not(:focus):not(:active) {
