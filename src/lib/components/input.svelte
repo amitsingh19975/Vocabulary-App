@@ -17,13 +17,16 @@
                 {style} 
                 value={inputValue}
                 on:input={debounceTime ? onInputEventDebounced : onInputEvent}
-                on:keydown on:keypress on:keyup={onKeyUp}
                 on:focusout={onFocusOut}
                 bind:this={inputRef}
                 min={min}
                 max={max}
                 step={step}
                 {...$$restProps}
+                on:keydown
+                on:keypress
+                on:keyup
+                on:keyup={onKeyUp}
             />
             {#if isSearchEnabled && (suggestedWordIndex >= 0 && suggestions.length > suggestedWordIndex)}
                 <span class="absolute left-0 opacity-40">{suggestions[suggestedWordIndex]}</span>
@@ -143,7 +146,6 @@
     const dispatch = createEventDispatcher<{
         search: string;
         input: InputEvent;
-        keyup: KeyboardEvent;
     }>();
 
     $: searchTree = new Trie(searchItems);
@@ -215,7 +217,6 @@
                 inputValue = '';
             }
         }
-        dispatch('keyup', e);
     }
 
     function onFocusOut(e: FocusEvent) {
