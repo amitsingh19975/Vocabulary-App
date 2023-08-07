@@ -6,7 +6,6 @@ export function wait(ms: number): Promise<void> {
 
 export function formatDateTime(date: Date | number): string {
     const temp = new Date(date);
-    console.log(window.navigator.language)
     return temp.toLocaleString(window.navigator.language, {
         year: 'numeric',
         month: 'long',
