@@ -16,14 +16,15 @@ export function formatDateTime(date: Date | number): string {
     });
 }
 
-export function getItemLocalStorageFromLocalStorage(key: string) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function getItemLocalStorageFromLocalStorage<T = any>(key: string) {
     if (!browser) return;
     const value = localStorage.getItem(key);
-    if (value) return JSON.parse(value);
+    if (value) return JSON.parse(value) as T;
     return null;
 }
 
-export function setItemToLocalStorage(key: string, data: unknown) {
+export function setItemToLocalStorage<T = unknown>(key: string, data: T) {
     if (!browser || data == null) return;
     const value = JSON.stringify(data);
     localStorage.setItem(key, value);

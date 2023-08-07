@@ -23,10 +23,10 @@
                         bind:value={openAIKey}
                     />
                     <Input
-                        label="Google Secret Key"
-                        placeholder="Enter Google secret key for text to speech"
+                        label="Voice RSS Key"
+                        placeholder="Enter Voice RSS key for text to speech"
                         labelClass="text-[0.8em] opacity-50"
-                        bind:value={googleTextToSpeechKey}
+                        bind:value={textToSpeechKey}
                     />
                     <Checkbox classWrapper="mt-2 w-fit" reverse bind:checked={rememberKey}>
                         <span class="text-sm">Remember API Keys</span>
@@ -60,13 +60,14 @@
     export let open = false;
 
     let openAIKey = '';
-    let googleTextToSpeechKey = '';
+    let textToSpeechKey = '';
     let rememberKey = false;
 
     let currentTabKey = 'ai';
 
     onMount(() => {
         openAIKey = $settings.openAIKey ?? '';
+        textToSpeechKey = $settings.textToSpeechAPIKey ?? '';
         rememberKey = Boolean($settings.rememberAIKey);
     })
 
@@ -84,7 +85,7 @@
     function onSave() {
         settings.update({
             openAIKey,
-            googleAPIKey: googleTextToSpeechKey,
+            textToSpeechAPIKey: textToSpeechKey,
             rememberAIKey: rememberKey
         });
         notificationStore.add({

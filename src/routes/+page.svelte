@@ -23,6 +23,8 @@
 	import Input from '$lib/components/input.svelte';
     import { MagnifyingGlass } from 'radix-icons-svelte';
     import { wordList } from '$lib/wordList';
+	import { onMount } from 'svelte';
+	import { cleanTextToSpeechCache } from '$lib/textToSpeech';
 
     $: words = $wordList;
 
@@ -58,4 +60,8 @@
         }
         return count;
     }
+
+    onMount(() => {
+        cleanTextToSpeechCache();
+    })
 </script>

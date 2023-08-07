@@ -3,7 +3,7 @@ import { getItemLocalStorageFromLocalStorage, setItemToLocalStorage } from './ut
 
 type Settings = {
     openAIKey?: string;
-    googleAPIKey?: string;
+    textToSpeechAPIKey?: string;
     rememberAIKey?: boolean;
 };
 
@@ -14,12 +14,12 @@ function createSettings() {
 
     function setSettings(settings: Settings) {
         settings.openAIKey = settings.openAIKey?.trim();
-        settings.googleAPIKey = settings.googleAPIKey?.trim();
+        settings.textToSpeechAPIKey = settings.textToSpeechAPIKey?.trim();
         set(settings);
         setItemToLocalStorage('settings', {
             ...settings,
             openAIKey: settings.rememberAIKey ? settings.openAIKey : undefined,
-            googleAPIKey: settings.rememberAIKey ? settings.googleAPIKey : undefined,
+            textToSpeechAPIKey: settings.rememberAIKey ? settings.textToSpeechAPIKey : undefined,
             rememberAIKey: settings.rememberAIKey,
         });
     }
@@ -31,7 +31,7 @@ function createSettings() {
             setItemToLocalStorage('settings', {
                 ...newSettings,
                 openAIKey: settings.rememberAIKey ? newSettings.openAIKey : undefined,
-                googleAPIKey: settings.rememberAIKey ? newSettings.googleAPIKey : undefined,
+                textToSpeechAPIKey: settings.rememberAIKey ? newSettings.textToSpeechAPIKey : undefined,
             });
             return newSettings;
         });

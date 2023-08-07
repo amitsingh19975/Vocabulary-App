@@ -3,6 +3,9 @@
         <div class="flex items-baseline gap-1">
             <h1 class="capitalize text-[2em] font-extrabold">{word.word}</h1>
             <span class="opacity-70 lowercase" class:memory-test={memoryTest}>{word.forms.join(', ')}</span>
+            <button on:click={onSpeakClick} class="ml-2 hover:bg-black hover:bg-opacity-30 border border-transparent hover:border-white hover:border-opacity-20 rounded-full p-2 active:bg-black active:bg-opacity-40">
+                <SpeakerLoud size={18} />
+            </button>
         </div>
         {#if isAIEnabled}
             <div>
@@ -94,11 +97,13 @@
 <script lang="ts">
 	import type { WordSchema } from '../../model/wordsSchema';
     import { marked  } from 'marked';
-    import { ExternalLink, MagicWand } from 'radix-icons-svelte';
+    import { ExternalLink, MagicWand, SpeakerLoud } from 'radix-icons-svelte';
     import { wordList } from '$lib/wordList';
     import { settings } from '$lib/settings';
     import Button from './button.svelte';
     import WordAiTestModal from './wordAiTestModal.svelte';
+	import { TextToSpeech } from '$lib/textToSpeech';
+	import { notificationStore } from '$lib/notificationStore';
 
     export let word: WordSchema;
     export let memoryTest: boolean = false;
@@ -162,6 +167,38 @@
     }
 
     // ------------------------------------------------------------------------
+
+    // ----------------------------- Speak Word ------------------------------
+
+    let textToSpeech = new TextToSpeech();
+
+    $: {
+        if (textToSpeech && $settings.textToSpeechAPIKey) {
+            textToSpeech = new TextToSpeech({
+                apiKey: $settings.textToSpeechAPIKey
+            });
+        } else {
+            textToSpeech = new TextToSpeech();
+        }
+    }
+
+    async function onSpeakClick() {
+        const temp = await textToSpeech.synthesizeSpeech({
+            text: word.word
+        });
+
+        if (!temp.isValid()) {
+            notificationStore.add({
+                message: 'Something went wrong while speaking the word',
+                type: 'danger'
+            });
+            return;
+        }
+
+        temp.play();
+    }
+
+    // -----------------------------------------------------------------------
 
 </script>
 
