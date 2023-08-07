@@ -3,6 +3,8 @@ import { getItemLocalStorageFromLocalStorage, setItemToLocalStorage } from './ut
 
 type Settings = {
     openAIKey?: string;
+    googleAPIKey?: string;
+    rememberAIKey?: boolean;
 };
 
 function createSettings() {
@@ -10,19 +12,27 @@ function createSettings() {
     const localSettings = getItemLocalStorageFromLocalStorage('settings');
     if (localSettings) set(localSettings);
 
-    function setSettings(settings: Settings, options?: { keepAIKey?: boolean }) {
-        const { keepAIKey = false } = options || {};
+    function setSettings(settings: Settings) {
         settings.openAIKey = settings.openAIKey?.trim();
+        settings.googleAPIKey = settings.googleAPIKey?.trim();
         set(settings);
-        setItemToLocalStorage('settings', {...settings, openAIKey: keepAIKey ? settings.openAIKey : undefined});
+        setItemToLocalStorage('settings', {
+            ...settings,
+            openAIKey: settings.rememberAIKey ? settings.openAIKey : undefined,
+            googleAPIKey: settings.rememberAIKey ? settings.googleAPIKey : undefined,
+            rememberAIKey: settings.rememberAIKey,
+        });
     }
 
-    function updateSettings(settings: Settings, options?: { keepAIKey?: boolean }) {
-        const { keepAIKey = false } = options || {};
+    function updateSettings(settings: Settings) {
         settings.openAIKey = settings.openAIKey?.trim();
         update((currentSettings) => {
             const newSettings = {...currentSettings, ...settings};
-            setItemToLocalStorage('settings', { ...newSettings, openAIKey: keepAIKey ? newSettings.openAIKey : undefined });
+            setItemToLocalStorage('settings', {
+                ...newSettings,
+                openAIKey: settings.rememberAIKey ? newSettings.openAIKey : undefined,
+                googleAPIKey: settings.rememberAIKey ? newSettings.googleAPIKey : undefined,
+            });
             return newSettings;
         });
     }

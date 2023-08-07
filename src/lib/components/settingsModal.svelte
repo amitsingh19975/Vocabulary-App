@@ -17,13 +17,19 @@
                 {#if key === "ai"}
                     <Input
                         label="OpenAI Secret Key"
-                        placeholder="Enter OpenAI secret key"
+                        placeholder="Enter OpenAI secret key for text generation"
                         autofocus
                         labelClass="text-[0.8em] opacity-50"
                         bind:value={openAIKey}
                     />
-                    <Checkbox classWrapper="mt-2" bind:checked={rememberKey}>
-                        <span class="text-sm">Remember OpenAI Key</span>
+                    <Input
+                        label="Google Secret Key"
+                        placeholder="Enter Google secret key for text to speech"
+                        labelClass="text-[0.8em] opacity-50"
+                        bind:value={googleTextToSpeechKey}
+                    />
+                    <Checkbox classWrapper="mt-2 w-fit" reverse bind:checked={rememberKey}>
+                        <span class="text-sm">Remember API Keys</span>
                     </Checkbox>
                 {/if}
             </div>
@@ -54,13 +60,14 @@
     export let open = false;
 
     let openAIKey = '';
+    let googleTextToSpeechKey = '';
     let rememberKey = false;
 
     let currentTabKey = 'ai';
 
     onMount(() => {
         openAIKey = $settings.openAIKey ?? '';
-        rememberKey = $settings.openAIKey ? true : false;
+        rememberKey = Boolean($settings.rememberAIKey);
     })
 
     const items = [
@@ -75,7 +82,11 @@
     }
 
     function onSave() {
-        settings.update({ openAIKey }, { keepAIKey: rememberKey });
+        settings.update({
+            openAIKey,
+            googleAPIKey: googleTextToSpeechKey,
+            rememberAIKey: rememberKey
+        });
         notificationStore.add({
             message: 'Settings saved',
             type: 'success',
