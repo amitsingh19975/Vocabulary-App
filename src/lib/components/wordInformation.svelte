@@ -3,7 +3,18 @@
         <div class="flex items-baseline gap-1">
             <h1 class="capitalize text-[2em] font-extrabold">{word.word}</h1>
             <span class="opacity-70 lowercase" class:memory-test={memoryTest}>{word.forms.join(', ')}</span>
-            <button on:click={onSpeakClick} class="ml-2 hover:bg-black hover:bg-opacity-30 border border-transparent hover:border-white hover:border-opacity-20 rounded-full p-2 active:bg-black active:bg-opacity-40">
+            <button
+                on:click={onSpeakClick}
+                disabled={!isSpeechEnabled}
+                class="
+                    ml-2 hover:bg-black hover:bg-opacity-30 border
+                    border-transparent hover:border-white
+                    hover:border-opacity-20 rounded-full p-2
+                    active:bg-black active:bg-opacity-40
+                    disabled:opacity-50 disabled:cursor-not-allowed
+                "
+                aria-label="Speak the word"
+            >
                 <SpeakerLoud size={18} />
             </button>
         </div>
@@ -171,6 +182,7 @@
     // ----------------------------- Speak Word ------------------------------
 
     let textToSpeech = new TextToSpeech();
+    let isSpeechEnabled = true;
 
     $: {
         if (textToSpeech && $settings.textToSpeechAPIKey) {
@@ -183,19 +195,24 @@
     }
 
     async function onSpeakClick() {
-        const temp = await textToSpeech.synthesizeSpeech({
-            text: word.word
-        });
-
-        if (!temp.isValid()) {
-            notificationStore.add({
-                message: 'Something went wrong while speaking the word',
-                type: 'danger'
+        let isSpeechEnabled = false;
+        try {
+            const temp = await textToSpeech.synthesizeSpeech({
+                text: word.word
             });
-            return;
+    
+            if (!temp.isValid()) {
+                notificationStore.add({
+                    message: 'Something went wrong while speaking the word',
+                    type: 'danger'
+                });
+                return;
+            }
+    
+            temp.play();
+        } finally {
+            isSpeechEnabled = true;
         }
-
-        temp.play();
     }
 
     // -----------------------------------------------------------------------
