@@ -1,7 +1,7 @@
 import { browser } from '$app/environment';
 import { getItemLocalStorageFromLocalStorage, setItemToLocalStorage } from './utils';
 
-const API_URL = 'http://api.voicerss.org/?';
+const API_URL = 'https://api.voicerss.org/?';
 
 export type TextToSpeechMessage = {
     text: string;
