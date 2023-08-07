@@ -36,15 +36,15 @@
                         <div role="status" aria-live="polite" class="grid grid-cols-3 justify-items-center mt-2">
                             <div class="flex flex-col-reverse items-center">
                                 <span class="text-sm opacity-50 uppercase tracking-wide font-medium">Attempts</span>
-                                <span aria-label="Number of attempts" class="text-[2em] font-bold text-sky-200">{history[index].stats.attempts}</span>
+                                <span aria-label="Number of attempts" class="text-[2em] font-bold text-sky-200">{humanizeNumber(history[index].stats.attempts)}</span>
                             </div>
                             <div class="flex flex-col-reverse items-center">
                                 <span class="text-sm opacity-50 uppercase tracking-wide font-medium">Correct Attempts</span>
-                                <span aria-label="Correct attempts" class="text-[2em] font-bold text-emerald-200">{history[index].stats.correct}</span>
+                                <span aria-label="Correct attempts" class="text-[2em] font-bold text-emerald-200">{humanizeNumber(history[index].stats.correct)}</span>
                             </div>
                             <div class="flex flex-col-reverse items-center">
                                 <span class="text-sm opacity-50 uppercase tracking-wide font-medium">Incorrect Attempts</span>
-                                <span aria-label="Incorrect attempts" class="text-[2em] font-bold text-rose-200">{calcIncorrectAttempts(history[index])}</span>
+                                <span aria-label="Incorrect attempts" class="text-[2em] font-bold text-rose-200">{humanizeNumber(calcIncorrectAttempts(history[index]))}</span>
                             </div>
                         </div>
                     </Card>
@@ -142,4 +142,8 @@
         virtualList?.recomputeSizes(0);
     }
     // ------------------------------------------------------
+
+    function humanizeNumber(num: number) {
+        return Intl.NumberFormat('en', { notation: 'compact' }).format(num);
+    }
 </script>
