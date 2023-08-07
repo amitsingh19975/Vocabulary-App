@@ -44,8 +44,7 @@
         onInputSearchHelper(value);
     }
 
-    function onKeyUpEvent(ce: CustomEvent<KeyboardEvent>) {
-        const e = ce.detail;
+    function onKeyUpEvent(e: KeyboardEvent) {
         if (e.key === 'Enter') {
             const value = (e.target as HTMLInputElement).value;
             onInputSearchHelper(value);
