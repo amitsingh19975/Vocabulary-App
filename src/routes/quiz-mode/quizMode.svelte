@@ -1,6 +1,7 @@
 <div class="h-full flex justify-center items-center">
     <Card>
         <div class="p-4 px-8 w-[25rem] flex gap-4 flex-col">
+            <Select options={modes} bind:value={currentMode} label="Mode" rootClass="w-full" />
             <Input
                 label="Amount of Words"
                 placeholder="Words to be quizzed"
@@ -75,19 +76,6 @@
     let amountOfWordsError = '';
     let randomSeedError = '';
     let historyPercentageError = '';
-
-    function onQuizStartClick() {
-        const query = new URLSearchParams({
-            amt_words: amountOfWords,
-            seed: randomSeed ?? '',
-            history_percentage: historyPercentage,
-            group_by: JSON.stringify({
-                key: normalizeGroupByItem(currentGroupBySelectionKey),
-                childKey: currentGroupBySelectionChildKey,
-            })
-        });
-        goto(`${base}/quiz-mode/quiz?${query.toString()}`);
-    }
 
     // --------------------------- Group By ---------------------------
     type OptionType = {
@@ -175,5 +163,33 @@
     }
 
     // -----------------------------------------------------------------
+
+    // ------------------------- Spell Mode ----------------------------
+
+    const modes = [{
+        key: 'spell',
+        label: 'Spell Bee',
+    }, {
+        key: 'guess',
+        label: 'Guess Definition',
+    }];
+    let currentMode = modes[1].key;
+
+    // -----------------------------------------------------------------
+
+
+    function onQuizStartClick() {
+        const query = new URLSearchParams({
+            amt_words: amountOfWords,
+            seed: randomSeed ?? '',
+            history_percentage: historyPercentage,
+            group_by: JSON.stringify({
+                key: normalizeGroupByItem(currentGroupBySelectionKey),
+                childKey: currentGroupBySelectionChildKey,
+            }),
+            quiz_mode: currentMode,
+        });
+        goto(`${base}/quiz-mode/quiz?${query.toString()}`);
+    }
 
 </script>

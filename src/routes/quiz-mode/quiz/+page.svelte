@@ -12,14 +12,46 @@
                 <h2 class="text-lg font-medium text-center opacity-80">Word</h2>
             </div>
             {#if currentWordIndex < quizWords.length}
-                <div class="flex justify-center py-8 h-[10rem] items-center" aria-live="polite">
-                    <h1
-                        class="capitalize font-bold text-3xl tracking-wide"
-                        class:text-white={quizWords[currentWordIndex].origin === 'new'}
-                        class:text-yellow-200={quizWords[currentWordIndex].origin === 'history'}
-                    >
-                        {quizWords[currentWordIndex].word}
-                    </h1>
+                <div class="flex justify-center py-8 h-[10rem] items-center flex-col" aria-live="polite">
+                    {#if currentQuizMode === 'guess' }
+                        <h1
+                            class="capitalize font-bold text-3xl tracking-wide"
+                            class:text-white={quizWords[currentWordIndex].origin === 'new'}
+                            class:text-yellow-200={quizWords[currentWordIndex].origin === 'history'}
+                        >
+                            {quizWords[currentWordIndex].word}
+                        </h1>
+                    {:else}
+                        <!-- svelte-ignore a11y-autofocus -->
+                        <button
+                            on:click={onSpeakClick}
+                            disabled={isSpeechLoading}
+                            class="
+                                hover:bg-black hover:bg-opacity-30 border
+                                border-transparent hover:border-white
+                                hover:border-opacity-20 rounded-full p-2
+                                active:bg-black active:bg-opacity-40
+                                disabled:opacity-50 disabled:cursor-not-allowed
+                                d-focus
+                            "
+                            aria-label="Speak the word"
+                            autofocus
+                            bind:this={speakBtnRef}
+                        >
+                            <SpeakerLoud size={32} />
+                        </button>
+                        <Input
+                            label="Word Spelling"
+                            placeholder="Spell the word"
+                            hideLabel
+                            labelClass="text-[0.8em]"
+                            rootClass="w-[90%] mt-2"
+                            bind:value={wordSpelling}
+                            bind:error={wordSpellingError}
+                            spellcheck="false"
+                            on:keyup={onSpeakKeyup}
+                        />
+                    {/if}
                 </div>
             {:else}
                 {#if viewStats}
@@ -43,8 +75,13 @@
             <div slot="footer">
                 {#if currentWordIndex < quizWords.length}
                     <div class="flex flex-col gap-2">
-                        <Button expand fill="outline" color="danger" on:click={onIncorrectWordClick} aria-label="I don't know the answer">I don't know</Button>
-                        <Button expand fill="outline" color="success" on:click={onCorrectWordClick} aria-label="I know the answer">I know</Button>
+                        {#if currentQuizMode === 'guess'}
+                            <Button expand fill="outline" color="success" on:click={onCorrectWordClick} aria-label="I know the answer">I know</Button>
+                            <Button expand fill="outline" color="danger" on:click={() => onIncorrectWordClick()} aria-label="I don't know the answer">I don't know</Button>
+                        {:else}
+                            <Button expand fill="outline" color="success" on:click={onSpellingSubmit} aria-label="Check my answer">Check my answer</Button>
+                            <Button expand fill="outline" color="warning" on:click={() => onSkipWordClick()} aria-label="Skip">Skip</Button>
+                        {/if}
                         <Button expand fill="ghost" color="light" on:click={onViewWord} aria-label="See word definition">Cheat</Button>
                     </div>
                 {:else}
@@ -76,12 +113,17 @@
     import { wordHistory, wordList } from '$lib/wordList';
 	import type { WordHistory, WordSchema } from '../../../model/wordsSchema';
     import Card from '$lib/components/card.svelte';
-    import { CheckCircled } from 'radix-icons-svelte';
+    import { CheckCircled, SpeakerLoud } from 'radix-icons-svelte';
     import Button from '$lib/components/button.svelte';
     import WordInformation from '$lib/components/wordInformation.svelte';
 	import { goto } from '$app/navigation';
 	import { base } from '$app/paths';
 	import { browser } from '$app/environment';
+	import { TextToSpeech } from '$lib/textToSpeech';
+	import { settings } from '$lib/settings';
+	import { notificationStore } from '$lib/notificationStore';
+	import Input from '$lib/components/input.svelte';
+	import { tick } from 'svelte';
 
     let history: WordHistory[] = $wordHistory;
 
@@ -106,6 +148,7 @@
     let currentWordIndex = 0;
     let viewStats = false;
     let viewWordDefinition = false;
+    let currentQuizMode = 'guess';
 
 
     $: {
@@ -113,14 +156,19 @@
             const amtWordsString = $page.url.searchParams.get('amt_words') ?? '20';
             const randomSeed = $page.url.searchParams.get('seed') ?? undefined;
             const percentageOfWordsFromHistoryString = $page.url.searchParams.get('perc_history') ?? '10';
-            const groupBy = $page.url.searchParams.get('group_by') ?? undefined;
-
             let groupByObj: Config['groupBy'] = undefined;
-
+            
             try {
+                const groupBy = $page.url.searchParams.get('group_by') ?? undefined;
                 groupByObj = groupBy ? JSON.parse(groupBy) : undefined;
             } catch(e) {
                 console.error(e);
+            }
+            
+            const quizMode = $page.url.searchParams.get('quiz_mode') ?? 'guess';
+            switch(quizMode) {
+                case 'spell': currentQuizMode = 'spell'; break;
+                default: currentQuizMode = 'guess'; break;
             }
     
             const amtWords = parseInt(amtWordsString);
@@ -216,7 +264,7 @@
         currentWordIndex++;
     }
 
-    function onIncorrectWordClick() {
+    function onIncorrectWordClick(nextWord: boolean = true) {
         const word = quizWords[currentWordIndex];
         const historyItem = history.find(w => w.word === word.word);
         if (historyItem) {
@@ -233,6 +281,10 @@
             });
         }
         wordHistory.set(history);
+        currentWordIndex = nextWord ? currentWordIndex + 1 : currentWordIndex;
+    }
+
+    function onSkipWordClick() {
         currentWordIndex++;
     }
 
@@ -247,4 +299,83 @@
     function onFinishClick() {
         goto(`${base}/quiz-mode`);
     }
+
+    // ------------------- Spell Mode -------------------
+
+    let textToSpeech = new TextToSpeech();
+    let isSpeechLoading = false;
+    let speakBtnRef: HTMLButtonElement | undefined = undefined;
+
+    $: {
+        if (speakBtnRef) {
+            speakBtnRef.focus();
+        }
+    }
+
+    $: {
+        if (textToSpeech && $settings.textToSpeechAPIKey) {
+            textToSpeech = new TextToSpeech({
+                apiKey: $settings.textToSpeechAPIKey
+            });
+        } else {
+            textToSpeech = new TextToSpeech();
+        }
+    }
+
+    async function onSpeakClick() {
+        const word = getCurrentWord(currentWordIndex);
+        if (!word) return;
+        
+        isSpeechLoading = true
+        try {
+            const temp = await textToSpeech.synthesizeSpeech({
+                text: word.word
+            });
+    
+            if (!temp.isValid()) {
+                notificationStore.add({
+                    message: 'Something went wrong while speaking the word',
+                    type: 'danger'
+                });
+                return;
+            }
+    
+            temp.play();
+        } finally {
+            isSpeechLoading = false;
+        }
+    }
+
+    let wordSpelling = '';
+    let wordSpellingError = '';
+
+    function onSpellingSubmit() {
+        const word = getCurrentWord(currentWordIndex);
+        if (!word) return;
+        const normalizedSpelling = wordSpelling.toLowerCase().trim();
+        if (normalizedSpelling === word.word) {
+            notificationStore.add({
+                message: 'Correct spelling!',
+                type: 'success',
+                duration: 1000,
+            });
+            onCorrectWordClick();
+            wordSpelling = '';
+            wordSpellingError = '';
+            tick().then(() => {
+                speakBtnRef?.focus();
+            })
+        } else {
+            wordSpellingError = `Incorrect spelling, try again`;
+            onIncorrectWordClick(false);
+        }
+    }
+
+    function onSpeakKeyup(event: KeyboardEvent) {
+        if (event.key === 'Enter') {
+            onSpellingSubmit();
+        }
+    }
+
+    // ---------------------------------------------------
 </script>
