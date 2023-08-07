@@ -1,4 +1,4 @@
-<Dialog {open} let:close>
+<Dialog bind:open let:close>
     <Card class="min-w-[30rem] max-h-[80vh]">
         <div slot="header" class="flex justify-between items-center">
             <div>
