@@ -12,7 +12,7 @@
                 <Cross1 size={12} />
             </button>
         </div>
-        <Tabs {items} activeIndex={0} useHash={false} bind:activeKey={currentKey}>
+        <Tabs {items} bind:activeIndex useHash={false} bind:activeKey={currentKey}>
             <div slot="tab" let:key class="p-1 flex flex-col gap-4 w-[30rem]">
                 <div>
                     <div class="flex justify-end">
@@ -97,6 +97,20 @@
     let isEditable = true;
     let aiResponse = '';
     let currentKey = 'sentence';
+    let activeIndex = 0;
+
+    function reset() {
+        sentence = '';
+        isEditable = true;
+        aiResponse = '';
+        activeIndex = 0;
+    }
+
+    $: {
+        if (open) {
+            reset();
+        }
+    }
 
     const items = [
         {
@@ -213,7 +227,7 @@
         createChatCompletionApi(() => {
             const systemMessage = "You're a well read english teacher, who is very knowledgeable about the subject. You're also a good listener, and you're able to find grammar mistake and explain the errors in a way that makes sense to the student. \n"
                 + 'You can go as far as explaining in "Markdown" or "HTML" language with "inline style" inside html tags if the situation required.\n'
-                + `Today the student studying the definition of the word "${currentWord.word}". Your job is to help the student to figure out the definition of the word by correcting them using hints. Under no circumstance you're allowed to reveal the correct definition unless he gives the correct definition by themselves.\n`
+                + `Today the student studying the definition of the word "${currentWord.word}". Your job is to help the student to figure out the definition of the word by correcting them using hints. Under no circumstance you're allowed to reveal the correct definition unless he gives the correct definition by themselves or give up.\n`
             return [
                 {
                     role: 'system',
