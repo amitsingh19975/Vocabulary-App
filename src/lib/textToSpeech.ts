@@ -55,6 +55,20 @@ export class TextToSpeechResponseWrapper {
     private _audio: HTMLAudioElement | null = null;
     constructor(private fromAPI?: TextToSpeechResponse, private nativeSynthesis?: SpeechSynthesisUtterance) {
         if (!('speechSynthesis' in window)) this.nativeSynthesis = undefined;
+        if (this.fromAPI) {
+            this.nativeSynthesis = undefined;
+            this._audio = new Audio(this.fromAPI.audioContent);
+            this._audio.onended = () => {
+                if (!this._audio) return;
+                this._audio.currentTime = 0;
+            };
+        }
+        if (this.nativeSynthesis) {
+            this.nativeSynthesis.onerror = () => {
+                this.nativeSynthesis = undefined;
+                throw new Error('Failed to play native synthesis');
+            }
+        }
     }
 
     get audioContent(): string|undefined {
@@ -63,25 +77,14 @@ export class TextToSpeechResponseWrapper {
     }
 
     play() {
-        if (this.fromAPI) {
-            this._audio = new Audio(this.fromAPI.audioContent);
-            this._audio.play();
-        }
-        if (this.nativeSynthesis) {
-            this.nativeSynthesis.onerror = () => {
-                this.nativeSynthesis = undefined;
-                throw new Error('Failed to play native synthesis');
-            }
-            window.speechSynthesis.speak(this.nativeSynthesis);
-        }
+        if (this._audio) this._audio.play();
+        if (this.nativeSynthesis) window.speechSynthesis.speak(this.nativeSynthesis);
     }
 
     stop() {
-        if (this.fromAPI) {
-            if (this._audio) {
-                this._audio.pause();
-                this._audio = null;
-            }
+        if (this._audio) {
+            this._audio.pause();
+            this._audio.currentTime = 0;
         }
         if (this.nativeSynthesis) window.speechSynthesis.cancel();
     }
