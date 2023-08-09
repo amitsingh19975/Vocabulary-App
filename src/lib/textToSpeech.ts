@@ -90,9 +90,7 @@ export class TextToSpeechResponseWrapper {
     }
 
     isValid() {
-        if (this.fromAPI) return true;
-        if (this.nativeSynthesis) return true;
-        return false;
+        return !!this.fromAPI || !!this.nativeSynthesis;
     }
 }
 
