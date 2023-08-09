@@ -19,14 +19,30 @@
         @apply outline-none ring-2 ring-sky-400;
     }
 
-    .d-focus:focus {
-        @apply outline-none ring-2 ring-sky-400;
-    }
 }
 
 @layer components {
+    .d-focus:focus {
+        @apply outline-none ring-2 ring-sky-400;
+    }
+
     .d-blur {
         @apply !ring-0;
+    }
+    
+    .d-html-word .word-example {
+        @apply font-light text-sky-50;
+    }
+
+    .d-html-word .word-example :is(strong, b) {
+        @apply font-bold text-sky-200;
+    }
+    
+    .d-html-word .word-example :is(em, i) {
+        @apply font-normal italic text-sky-200;
+    }
+    .d-html-word .word-example :is(em) {
+        @apply underline;
     }
 
     .d-html-word a:not(.custom-a-tag) {
